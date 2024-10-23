@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <h1>Login</h1>
+  <form>
+    <div>
+        <label for="email">E-mail</label>
+        <input id="email" placeholder="Email" type="email" name="email">
+    </div>
+    <div>
+        <label for="password">Senha</label>
+        <input id="password" placeholder="Senha" type="password" name="password">
+    </div>
+    <button type="submit">Entrar</button>
+  </form>
+
+  <script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const response = await fetch('/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email.value,
+          password: form.password.value
+        })
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        alert("O servidor nos disse: " + responseData.message);
+        return;
+      }
+
+      localStorage.setItem('token', responseData.token);
+      location.href = '/views/main.html';
+    });
+  </script>
+</body>
+
+</html>

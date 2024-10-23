@@ -3,13 +3,13 @@ const mainForm = document.querySelector('form')
 void async function () {
   const response = await fetch('/users')
   const users = await response.json()
-  users.forEach(user => {
-    const newForm = mainForm.cloneNode(true)
-    newForm.name.value = user.name
-    newForm.email.value = user.email
-    newForm.dataset.id = user.id
-    mainForm.before(newForm)
-  })
+    users.forEach(user => {
+      const newForm = mainForm.cloneNode(true)
+      newForm.name.value = user.name
+      newForm.email.value = user.email
+      newForm.dataset.id = user.id
+      mainForm.before(newForm)
+    })
   console.log(users)
 }()
 
@@ -17,12 +17,17 @@ document.addEventListener('submit', async (event) => {
   event.preventDefault()
   const action = event.submitter.dataset.action ?? null
   const currentForm = event.target
+
+  const token = localStorage.getItem('token');
   
   if (action === 'delete') {
     const id = currentForm.dataset.id
     const method = 'DELETE'
     const url = `/users/${id}`
-    const response = await fetch(url, { method })
+    const headers = {
+      'Authorization': `${token}`
+    }
+    const response = await fetch(url, { method, headers })
     if (!response.ok)
       return console.error('Error:', response.statusText)
     currentForm.remove()
@@ -33,10 +38,14 @@ document.addEventListener('submit', async (event) => {
     const id = currentForm.dataset.id
     const method = 'PUT'
     const url = `/users/${id}`
-    const headers = { 'Content-Type': 'application/json' }
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `${token}`
+    }
     const name = currentForm.name.value
     const email = currentForm.email.value
-    const body = JSON.stringify({ name, email })
+    const password = currentForm.password.value
+    const body = JSON.stringify({ name, email, password })
     const response = await fetch(url, { method, headers, body, })
     if (!response.ok)
       return console.error('Error:', response.statusText)
@@ -46,10 +55,14 @@ document.addEventListener('submit', async (event) => {
   if (action === 'create') {
     const method = 'POST'
     const url = '/users'
-    const headers = { 'Content-Type': 'application/json' }
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `${token}`
+    }
     const name = currentForm.name.value
     const email = currentForm.email.value
-    const body = JSON.stringify({ name, email })
+    const password = currentForm.password.value
+    const body = JSON.stringify({ name, email, password })
     const response = await fetch(url, { method, headers, body })
     if (!response.ok)
       return console.error('Error:', response.statusText)
